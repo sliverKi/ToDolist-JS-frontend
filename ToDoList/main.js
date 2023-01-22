@@ -10,34 +10,31 @@
 //전체탭을 누르면 다시 전체 아이템으로 돌아옴
 
 let taskInput=document.getElementById("task-input");
-
 let addButton=document.getElementById("add-button");
 addButton.addEventListener("click", plusTask);//클릭하면 plus함수로 이동()
-
-
 let checkButton=document.getElementById("check-button");
 let deleteButton=document.getElementById("delete-button");
 
 let tabs=document.querySelectorAll(".task-tabs div");//task-tabs의 아래 있는 div모두 get
-console.log(tabs)
+//console.log(tabs)
 let mode="all";
 let filterList=[];
 let taskList=[];
+
 for (let i=1; i<tabs.length; i++){//under-line제외
     tabs[i].addEventListener("click", function(event){
         filter(event);
     });
 }
 
-
 function filter(event){//tab을 click할때 마다 filter함수가 실행이 된다.
-    mode=event.target.id;//변수쓰기 귀찮으니까 mode로 간단히
-    filterList=[];
     document.getElementById("under-line").style.width=event.target.offsetWidth+"px";
     document.getElementById("under-line").style.top=event.target.offsetTop+event.target.offsetHeight+"px";
-    document.getElementById("under-line").style.left=event.target.offsetLeft+"px";
-    
+    document.getElementById("under-line").style.left=event.target.offsetLeft+"px";   
     console.log("change tab click bar : "+event.target.id);//event.target::어떤걸 click했는지 알고 싶을때 사용
+
+    mode=event.target.id;//변수쓰기 귀찮으니까 mode로 간단히
+    filterList=[];
     
     if(mode="ongoing"){//만약 진행중이면 
         for(let i=0; i<taskList.length;i++){
@@ -47,30 +44,16 @@ function filter(event){//tab을 click할때 마다 filter함수가 실행이 된
         }
         //taskList=filterList;//이렇게 쓰면 taskList가 filterList로 덮어 쓰기 되서 다시 all-tab을 누르면 filterList만 보여줘(이전의 모두 data증발) 
         render();
-    }else if(mode=="done"){
-        console.log("you clicked mode Done?")
+    }
+    else if(mode=="done"){
+        console.log("Did you clicked Done-mode? ")
         for(let i=0; i<taskList.length;i++){
             if(taskList[i].isComplete){
                 filterList.push(taskList[i]);
             }    
         }
         render();
-    }
-    
-}
-
-
-function plusTask(){
-    //let taskContent=taskInput.value;
-    let task={//객체
-        id : randomIDGenerate(),
-        taskContent : taskInput.value,
-        isComplete : false
-    };
-    taskList.push(task);
-    console.log("plus");
-    console.log(taskList);
-    render();
+    }    
 }
 
 function render(){//UI-Update
@@ -105,6 +88,24 @@ function render(){//UI-Update
     document.getElementById("task-board").innerHTML=resultHTML;
 }
 
+function enterkey() {
+	if (window.event.keyCode == 13) {
+    	plusTask();    
+    }
+}
+
+function plusTask(){
+    //let taskContent=taskInput.value;
+    let task={//객체
+        id : randomIDGenerate(),
+        taskContent : taskInput.value,
+        isComplete : false
+    };
+    taskList.push(task);
+    console.log("plus");
+    console.log(taskList);
+    render();
+}
 
 function toggleComplete(id){
     console.log("id: "+id);
@@ -121,10 +122,6 @@ function toggleComplete(id){
     render();
 }
 
-function randomIDGenerate(){
-    return '_' + Math.random().toString(36).substring(2,9);
-}
-
 function deleteTask(id){
     console.log("delete id"+id);
     for(let i=0;i<taskList.length;i++){
@@ -136,4 +133,9 @@ function deleteTask(id){
     render();//값이 update되면 UI도 update해줘야 
     console.log(taskList);
 }
+
+function randomIDGenerate(){
+    return '_' + Math.random().toString(36).substring(2,9);
+}
+
 
