@@ -13,11 +13,51 @@ let taskInput=document.getElementById("task-input");
 
 let addButton=document.getElementById("add-button");
 addButton.addEventListener("click", plusTask);//클릭하면 plus함수로 이동()
-let taskList=[];
+
 
 let checkButton=document.getElementById("check-button");
-
 let deleteButton=document.getElementById("delete-button");
+
+let tabs=document.querySelectorAll(".task-tabs div");//task-tabs의 아래 있는 div모두 get
+console.log(tabs)
+let mode="all";
+let filterList=[];
+let taskList=[];
+for (let i=1; i<tabs.length; i++){//under-line제외
+    tabs[i].addEventListener("click", function(event){
+        filter(event);
+    });
+}
+
+
+function filter(event){//tab을 click할때 마다 filter함수가 실행이 된다.
+    mode=event.target.id;//변수쓰기 귀찮으니까 mode로 간단히
+    filterList=[];
+    document.getElementById("under-line").style.width=event.target.offsetWidth+"px";
+    document.getElementById("under-line").style.top=event.target.offsetTop+event.target.offsetHeight+"px";
+    document.getElementById("under-line").style.left=event.target.offsetLeft+"px";
+    
+    console.log("change tab click bar : "+event.target.id);//event.target::어떤걸 click했는지 알고 싶을때 사용
+    
+    if(mode="ongoing"){//만약 진행중이면 
+        for(let i=0; i<taskList.length;i++){
+            if(taskList[i].isComplete==false){//완료되지 않은것들만 filterList에 저장
+                filterList.push(taskList[i]);
+            }    
+        }
+        //taskList=filterList;//이렇게 쓰면 taskList가 filterList로 덮어 쓰기 되서 다시 all-tab을 누르면 filterList만 보여줘(이전의 모두 data증발) 
+        render();
+    }else if(mode=="done"){
+        console.log("you clicked mode Done?")
+        for(let i=0; i<taskList.length;i++){
+            if(taskList[i].isComplete){
+                filterList.push(taskList[i]);
+            }    
+        }
+        render();
+    }
+    
+}
 
 
 function plusTask(){
@@ -33,23 +73,31 @@ function plusTask(){
     render();
 }
 
-function render(){
+function render(){//UI-Update
+    let list=[];//filter-function내의 list가 덮어쓰여지는 문제점을 해결하기 위해 아무의미 없는 배열 선언
+    if(mode=="all"){
+        list=taskList;
+    }//만약 mode==all이면 list는 기존의 taskList
+    else{
+        list=filterList;
+    }//ongoing상태이면, list에 filterList를 할당
+    
     let resultHTML='';
-    for(let i=0;i<taskList.length;i++){
-        if(taskList[i].isComplete==true){
+    for(let i=0;i<list.length;i++){//렌더링할때 현재 tab-mode에 맞는 list를 rendering
+        if(list[i].isComplete){
             resultHTML+=`<div class="task">
-            <div class="task-done"> ${taskList[i].taskContent}</div>
+            <div class="task-done"> ${list[i].taskContent}</div>
             <div>
-                <button class="button-checked" onclick="toggleComplete('${taskList[i].id}')" >Check</button>
-                <button  onclick="toggleDelete('${taskList[i].id}')">Delete</button>
+                <button class="button-checked" onclick="toggleComplete('${list[i].id}')" >Check</button>
+                <button  onclick="toggleDelete('${list[i].id}')">Delete</button>
             </div>
           </div>`;
         }else{
             resultHTML+=`<div class="task">
-            <div>${taskList[i].taskContent}</div>
+            <div>${list[i].taskContent}</div>
             <div>
-                <button class="button-checked" onclick="toggleComplete('${taskList[i].id}')">Check</button>
-                <button onclick="deleteTask('${taskList[i].id}')">Delete</button>
+                <button class="button-checked" onclick="toggleComplete('${list[i].id}')">Check</button>
+                <button onclick="deleteTask('${list[i].id}')">Delete</button>
             </div>
         </div>`;
         }
@@ -81,21 +129,11 @@ function deleteTask(id){
     console.log("delete id"+id);
     for(let i=0;i<taskList.length;i++){
         if(taskList[i].id==id){
-            taskList.splice(i,1);//task.length=0과 동일 단, 성능적으로 splice가 우수하여 slice사용함. 
+            taskList.splice(i,1);//task.length=0과 동일 단, 성능적으로 splice가 우수하여 splice사용함. 
             break;
         }
     }
-    render();
+    render();//값이 update되면 UI도 update해줘야 
     console.log(taskList);
 }
-/*
-function changeColor(id){
-    console.log("change color"+id);
-    for(let i=0;i<taskList.length; i++){
-        if(taskList[i].id==id){
-            document.getElementsByClassName(".task").style.color=gray;
-            break;
-        }
-    }
-}*/
 
